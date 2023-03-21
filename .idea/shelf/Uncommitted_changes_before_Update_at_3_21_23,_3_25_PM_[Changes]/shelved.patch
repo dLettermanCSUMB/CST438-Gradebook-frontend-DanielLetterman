@@ -1,0 +1,382 @@
+Index: src/components/CreateAssignment.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/components/CreateAssignment.js b/src/components/CreateAssignment.js
+new file mode 100644
+--- /dev/null	(date 1679436195700)
++++ b/src/components/CreateAssignment.js	(date 1679436195700)
+@@ -0,0 +1,156 @@
++import React from 'react';
++import { ToastContainer, toast } from 'react-toastify';
++import 'react-toastify/dist/ReactToastify.css';
++import Grid from '@mui/material/Grid';
++import Button from '@mui/material/Button';
++import Cookies from 'js-cookie';
++import {SERVER_URL} from '../constants.js';
++import DatePicker from "react-datepicker";
++
++import "react-datepicker/dist/react-datepicker.css";
++import {Link} from "react-router-dom";
++
++
++class CreateAssignment extends React.Component {
++    constructor(props) {
++        super(props);
++        console.log("CreateAssignment.cnstr "+ JSON.stringify(props.location));
++        this.state = { assignmentName: "", minDate: new Date().setHours(23,59,59,999), dueDate: new Date().setHours(0,0,0,0), selectedCourseId: new Number , courses: [] };
++    };
++
++    componentDidMount() {
++        this.fetchInstructorCourses();
++    }
++
++    fetchInstructorCourses = () => {
++        console.log("CreateAssignment.fetchInstructorCourses");
++        const token = Cookies.get('XSRF-TOKEN');
++        fetch(`${SERVER_URL}/createAssignment`,
++            {
++                method: 'GET',
++                headers: { 'X-XSRF-TOKEN': token }
++            } )
++            .then((response) => response.json())
++            .then((responseData) => {
++                if (Array.isArray(responseData.courses)) {
++                    this.setState({ courses: responseData.courses.map((course, index) => ( { id: index, ...course } )) });
++                } else {
++                    toast.error("Fetch failed.", {
++                        position: toast.POSITION.BOTTOM_LEFT
++                    });
++                }
++            })
++            .catch(err => console.error(err));
++    }
++
++    handleSubmit = () => {
++        console.log("CreateAssignment.handleSubmit");
++        const token = Cookies.get('XSRF-TOKEN');
++
++        if (this.state.assignmentName.length < 6) {
++            toast.error("Assignment must have a name with minimum 6 characters", {
++                position: toast.POSITION.BOTTOM_LEFT
++            });
++            console.error("CreateAssignment.handleSubmit: assignmentName too short");
++            return
++        } else if (this.state.dueDate <= this.state.minDate) {
++            toast.error("Please select a later due date", {
++                position: toast.POSITION.BOTTOM_LEFT
++            });
++            console.error("CreateAssignment.handleSubmit: dueDate is less then minDate");
++            return
++        } else if (this.state.selectedCourseId == 0) {
++            toast.error("Please select a course", {
++                position: toast.POSITION.BOTTOM_LEFT
++            });
++            console.error("CreateAssignment.handleSubmit: no course selected");
++            return
++        }
++
++        fetch(`${SERVER_URL}/createAssignment` ,
++            {
++                method: 'POST',
++                headers: { 'Content-Type': 'application/json',
++                    'X-XSRF-TOKEN': token },
++                body: JSON.stringify({assignmentName: this.state.assignmentName, dueDate: this.state.dueDate, courseId: this.state.selectedCourseId})
++            } )
++            .then(res => {
++                if (res.ok) {
++                    toast.success("Assignment successfully created", {
++                        position: toast.POSITION.BOTTOM_LEFT
++                    });
++                } else {
++                    toast.error("Assignment creation failed", {
++                        position: toast.POSITION.BOTTOM_LEFT
++                    });
++                    console.error('Put http status =' + res.status);
++                }})
++            .catch(err => {
++                toast.error("Assignment creation failed", {
++                    position: toast.POSITION.BOTTOM_LEFT
++                });
++                console.error(err);
++            });
++    };
++
++    handleDateChange = (date) => {
++        console.log("CreateAssignment.handleDateChange " + Date.parse(date));
++        this.setState({
++            dueDate: Date.parse(date)
++        })
++    }
++
++    handleNameChange = (name) => {
++        console.log("CreateAssignment.handleNameChange " + name.target.value);
++        this.setState({
++            assignmentName: name.target.value
++        })
++    }
++
++    handleCourseSelect = (courseId) => {
++        console.log("CreateAssignment.handleCourseSelect " + courseId.target.value);
++        this.setState({selectedCourseId: courseId.target.value});
++    }
++
++    render() {
++
++        const assignmentName = this.state.assignmentName;
++        const dueDate = this.state.dueDate;
++        const minDate = this.state.minDate;
++        const courses = this.state.courses;
++
++        return (
++            <div align="left">
++
++                <h2>Create Assignment:</h2>
++               <Grid container paddingX={10}>
++                   <Grid item align="right">
++                       <h3 >Assignment Name: </h3>
++                       <h3>Due Date: </h3>
++                       <h3>Course: </h3>
++                   </Grid>
++                   <Grid item align="left" paddingX={2}>
++                       <h3><input id="assignmentName" value={assignmentName} onChange={this.handleNameChange}></input></h3>
++                       <h3><DatePicker id="dueDate" selected={dueDate} onChange={this.handleDateChange} dateFormat={"yyyy-MM-dd"} minDate={minDate}/></h3>
++                       <h3> <select id="courseSelect " onChange={ this.handleCourseSelect }>
++                               <option value={0}>Please select</option>
++                               { courses.map( (course, index) => {return <option key={index} value={course.courseId}>{course.title}</option>} ) }
++                           </select></h3>
++                   </Grid>
++               </Grid>
++                <Button component={Link} to={{pathname:'/'}}
++                        id="Submit" variant="outlined" color="primary" style={{margin: 10}} onClick={this.handleSubmit} >
++                    Submit
++                </Button>
++                <ToastContainer autoClose={1500} />
++
++                <div style={{ width: '100%', align:"left"   }}>
++                    For DEBUG:  display state.
++                    {JSON.stringify(this.state)}
++                </div>
++            </div>
++        )
++    }
++}
++
++export default CreateAssignment;
+\ No newline at end of file
+Index: src/App.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import './App.css';\nimport AppBar from '@mui/material/AppBar';\nimport Toolbar from '@mui/material/Toolbar';\nimport Typography from '@mui/material/Typography';\nimport Gradebook from './components/Gradebook';\nimport Assignment from './components/Assignment';\nimport {BrowserRouter, Switch,  Route} from 'react-router-dom';\n\nfunction App() {\n  return (\n    <div className=\"App\">\n      <AppBar position=\"static\" color=\"default\">\n        <Toolbar>\n           <Typography variant=\"h6\" color=\"inherit\">\n            Gradebook\n           </Typography>\n        </Toolbar>\n      </AppBar>\n      <BrowserRouter>\n       <Switch>\n        <Route exact path='/' component={Assignment} />\n        <Route path='/gradebook' component={Gradebook} />\n       </Switch>\n      </BrowserRouter>\n    </div>\n  );\n}\n\nexport default App;\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/App.js b/src/App.js
+--- a/src/App.js	(revision 1f0bf2938ba36b995ab749dced998193fc08624d)
++++ b/src/App.js	(date 1679363250517)
+@@ -5,6 +5,7 @@
+ import Gradebook from './components/Gradebook';
+ import Assignment from './components/Assignment';
+ import {BrowserRouter, Switch,  Route} from 'react-router-dom';
++import CreateAssignment from "./components/CreateAssignment";
+ 
+ function App() {
+   return (
+@@ -20,6 +21,7 @@
+        <Switch>
+         <Route exact path='/' component={Assignment} />
+         <Route path='/gradebook' component={Gradebook} />
++        <Route path='/createAssignment' component={CreateAssignment} />
+        </Switch>
+       </BrowserRouter>
+     </div>
+Index: package-lock.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/package-lock.json b/package-lock.json
+--- a/package-lock.json	(revision 1f0bf2938ba36b995ab749dced998193fc08624d)
++++ b/package-lock.json	(date 1679368943562)
+@@ -19,6 +19,7 @@
+         "@testing-library/user-event": "^13.5.0",
+         "js-cookie": "^3.0.1",
+         "react": "^17.0.2",
++        "react-datepicker": "^4.10.0",
+         "react-dom": "^17.0.2",
+         "react-router-dom": "^5.2.0",
+         "react-scripts": "^5.0.0",
+@@ -6147,6 +6148,11 @@
+       "resolved": "https://registry.npmjs.org/cjs-module-lexer/-/cjs-module-lexer-1.2.2.tgz",
+       "integrity": "sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA=="
+     },
++    "node_modules/classnames": {
++      "version": "2.3.2",
++      "resolved": "https://registry.npmjs.org/classnames/-/classnames-2.3.2.tgz",
++      "integrity": "sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw=="
++    },
+     "node_modules/clean-css": {
+       "version": "5.3.0",
+       "resolved": "https://registry.npmjs.org/clean-css/-/clean-css-5.3.0.tgz",
+@@ -6889,6 +6895,18 @@
+         "node": ">=10"
+       }
+     },
++    "node_modules/date-fns": {
++      "version": "2.29.3",
++      "resolved": "https://registry.npmjs.org/date-fns/-/date-fns-2.29.3.tgz",
++      "integrity": "sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==",
++      "engines": {
++        "node": ">=0.11"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/date-fns"
++      }
++    },
+     "node_modules/debug": {
+       "version": "4.3.2",
+       "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.2.tgz",
+@@ -15437,6 +15455,23 @@
+         "node": ">=14"
+       }
+     },
++    "node_modules/react-datepicker": {
++      "version": "4.10.0",
++      "resolved": "https://registry.npmjs.org/react-datepicker/-/react-datepicker-4.10.0.tgz",
++      "integrity": "sha512-6IfBCZyWj54ZZGLmEZJ9c4Yph0s9MVfEGDC2evOvf9AmVz+RRcfP2Czqad88Ff9wREbcbqa4dk7IFYeXF1d3Ag==",
++      "dependencies": {
++        "@popperjs/core": "^2.9.2",
++        "classnames": "^2.2.6",
++        "date-fns": "^2.24.0",
++        "prop-types": "^15.7.2",
++        "react-onclickoutside": "^6.12.2",
++        "react-popper": "^2.3.0"
++      },
++      "peerDependencies": {
++        "react": "^16.9.0 || ^17 || ^18",
++        "react-dom": "^16.9.0 || ^17 || ^18"
++      }
++    },
+     "node_modules/react-dev-utils": {
+       "version": "12.0.1",
+       "resolved": "https://registry.npmjs.org/react-dev-utils/-/react-dev-utils-12.0.1.tgz",
+@@ -15572,11 +15607,43 @@
+       "resolved": "https://registry.npmjs.org/react-error-overlay/-/react-error-overlay-6.0.11.tgz",
+       "integrity": "sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg=="
+     },
++    "node_modules/react-fast-compare": {
++      "version": "3.2.1",
++      "resolved": "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.1.tgz",
++      "integrity": "sha512-xTYf9zFim2pEif/Fw16dBiXpe0hoy5PxcD8+OwBnTtNLfIm3g6WxhKNurY+6OmdH1u6Ta/W/Vl6vjbYP1MFnDg=="
++    },
+     "node_modules/react-is": {
+       "version": "17.0.2",
+       "resolved": "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz",
+       "integrity": "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="
+     },
++    "node_modules/react-onclickoutside": {
++      "version": "6.12.2",
++      "resolved": "https://registry.npmjs.org/react-onclickoutside/-/react-onclickoutside-6.12.2.tgz",
++      "integrity": "sha512-NMXGa223OnsrGVp5dJHkuKxQ4czdLmXSp5jSV9OqiCky9LOpPATn3vLldc+q5fK3gKbEHvr7J1u0yhBh/xYkpA==",
++      "funding": {
++        "type": "individual",
++        "url": "https://github.com/Pomax/react-onclickoutside/blob/master/FUNDING.md"
++      },
++      "peerDependencies": {
++        "react": "^15.5.x || ^16.x || ^17.x || ^18.x",
++        "react-dom": "^15.5.x || ^16.x || ^17.x || ^18.x"
++      }
++    },
++    "node_modules/react-popper": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/react-popper/-/react-popper-2.3.0.tgz",
++      "integrity": "sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==",
++      "dependencies": {
++        "react-fast-compare": "^3.0.1",
++        "warning": "^4.0.2"
++      },
++      "peerDependencies": {
++        "@popperjs/core": "^2.0.0",
++        "react": "^16.8.0 || ^17 || ^18",
++        "react-dom": "^16.8.0 || ^17 || ^18"
++      }
++    },
+     "node_modules/react-refresh": {
+       "version": "0.11.0",
+       "resolved": "https://registry.npmjs.org/react-refresh/-/react-refresh-0.11.0.tgz",
+@@ -17395,6 +17462,19 @@
+         "is-typedarray": "^1.0.0"
+       }
+     },
++    "node_modules/typescript": {
++      "version": "4.9.5",
++      "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.9.5.tgz",
++      "integrity": "sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==",
++      "peer": true,
++      "bin": {
++        "tsc": "bin/tsc",
++        "tsserver": "bin/tsserver"
++      },
++      "engines": {
++        "node": ">=4.2.0"
++      }
++    },
+     "node_modules/unbox-primitive": {
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.0.1.tgz",
+@@ -17596,6 +17676,14 @@
+         "makeerror": "1.0.12"
+       }
+     },
++    "node_modules/warning": {
++      "version": "4.0.3",
++      "resolved": "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz",
++      "integrity": "sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==",
++      "dependencies": {
++        "loose-envify": "^1.0.0"
++      }
++    },
+     "node_modules/watchpack": {
+       "version": "2.3.1",
+       "resolved": "https://registry.npmjs.org/watchpack/-/watchpack-2.3.1.tgz",
+Index: src/components/Assignment.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import React from 'react';\nimport { ToastContainer, toast } from 'react-toastify';\nimport 'react-toastify/dist/ReactToastify.css';\nimport { Link } from 'react-router-dom'\nimport Cookies from 'js-cookie';\nimport Button from '@mui/material/Button';\nimport Radio from '@mui/material/Radio';\nimport {DataGrid} from '@mui/x-data-grid';\nimport {SERVER_URL} from '../constants.js'\n\n// NOTE:  for OAuth security, http request must have\n//   credentials: 'include' \n//\n\nclass Assignment extends React.Component {\n    constructor(props) {\n      super(props);\n      this.state = {selected: 0, assignments: []};\n    };\n \n   componentDidMount() {\n    this.fetchAssignments();\n  }\n \n  fetchAssignments = () => {\n    console.log(\"Assignment.fetchAssignments\");\n    const token = Cookies.get('XSRF-TOKEN');\n    fetch(`${SERVER_URL}/gradebook`, \n      {  \n        method: 'GET', \n        headers: { 'X-XSRF-TOKEN': token }\n      } )\n    .then((response) => response.json()) \n    .then((responseData) => { \n      if (Array.isArray(responseData.assignments)) {\n        //  add to each assignment an \"id\"  This is required by DataGrid  \"id\" is the row index in the data grid table \n        this.setState({ assignments: responseData.assignments.map((assignment, index) => ( { id: index, ...assignment } )) });\n      } else {\n        toast.error(\"Fetch failed.\", {\n          position: toast.POSITION.BOTTOM_LEFT\n        });\n      }        \n    })\n    .catch(err => console.error(err)); \n  }\n  \n   onRadioClick = (event) => {\n    console.log(\"Assignment.onRadioClick \" + event.target.value);\n    this.setState({selected: event.target.value});\n  }\n  \n  render() {\n     const columns = [\n      {\n        field: 'assignmentName',\n        headerName: 'Assignment',\n        width: 400,\n        renderCell: (params) => (\n          <div>\n          <Radio\n            checked={params.row.id == this.state.selected}\n            onChange={this.onRadioClick}\n            value={params.row.id}\n            color=\"default\"\n            size=\"small\"\n          />\n          {params.value}\n          </div>\n        )\n      },\n      { field: 'courseTitle', headerName: 'Course', width: 300 },\n      { field: 'dueDate', headerName: 'Due Date', width: 200 }\n      ];\n      \n      const assignmentSelected = this.state.assignments[this.state.selected];\n      return (\n          <div align=\"left\" >\n            <h4>Assignment(s) ready to grade: </h4>\n              <div style={{ height: 450, width: '100%', align:\"left\"   }}>\n                <DataGrid rows={this.state.assignments} columns={columns} />\n              </div>                \n            <Button component={Link} to={{pathname:'/gradebook',   assignment: assignmentSelected }} \n                    variant=\"outlined\" color=\"primary\" disabled={this.state.assignments.length===0}  style={{margin: 10}}>\n              Grade\n            </Button>\n            <ToastContainer autoClose={1500} /> \n          </div>\n      )\n  }\n}  \n\nexport default Assignment;
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/components/Assignment.js b/src/components/Assignment.js
+--- a/src/components/Assignment.js	(revision 1f0bf2938ba36b995ab749dced998193fc08624d)
++++ b/src/components/Assignment.js	(date 1679363250519)
+@@ -75,6 +75,10 @@
+       const assignmentSelected = this.state.assignments[this.state.selected];
+       return (
+           <div align="left" >
++              <Button component={Link} to={{pathname:'/createAssignment'}}
++                      variant="outlined" color="primary"  style={{margin: 10}}>
++                  Create Assignment
++              </Button>
+             <h4>Assignment(s) ready to grade: </h4>
+               <div style={{ height: 450, width: '100%', align:"left"   }}>
+                 <DataGrid rows={this.state.assignments} columns={columns} />
+Index: package.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n  \"name\": \"gradebook\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@emotion/react\": \"^11.8.2\",\n    \"@emotion/styled\": \"^11.8.1\",\n    \"@mui/base\": \"^5.0.0-alpha.73\",\n    \"@mui/material\": \"^5.5.2\",\n    \"@mui/styled-engine-sc\": \"^5.5.2\",\n    \"@mui/x-data-grid\": \"^5.6.1\",\n    \"@testing-library/jest-dom\": \"^5.16.2\",\n    \"@testing-library/react\": \"^12.1.4\",\n    \"@testing-library/user-event\": \"^13.5.0\",\n    \"js-cookie\": \"^3.0.1\",\n    \"react\": \"^17.0.2\",\n    \"react-dom\": \"^17.0.2\",\n    \"react-router-dom\": \"^5.2.0\",\n    \"react-scripts\": \"^5.0.0\",\n    \"react-toastify\": \"^8.2.0\",\n    \"styled-components\": \"^5.3.3\",\n    \"web-vitals\": \"^2.1.4\"\n  },\n  \"scripts\": {\n    \"start\": \"react-scripts start\",\n    \"build\": \"react-scripts build\",\n    \"test\": \"react-scripts test\",\n    \"eject\": \"react-scripts eject\"\n  },\n  \"eslintConfig\": {\n    \"extends\": [\n      \"react-app\",\n      \"react-app/jest\"\n    ]\n  },\n  \"browserslist\": {\n    \"production\": [\n      \">0.2%\",\n      \"not dead\",\n      \"not op_mini all\"\n    ],\n    \"development\": [\n      \"last 1 chrome version\",\n      \"last 1 firefox version\",\n      \"last 1 safari version\"\n    ]\n  }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/package.json b/package.json
+--- a/package.json	(revision 1f0bf2938ba36b995ab749dced998193fc08624d)
++++ b/package.json	(date 1679368943354)
+@@ -14,6 +14,7 @@
+     "@testing-library/user-event": "^13.5.0",
+     "js-cookie": "^3.0.1",
+     "react": "^17.0.2",
++    "react-datepicker": "^4.10.0",
+     "react-dom": "^17.0.2",
+     "react-router-dom": "^5.2.0",
+     "react-scripts": "^5.0.0",
