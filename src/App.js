@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Gradebook from './components/Gradebook';
 import Assignment from './components/Assignment';
 import {BrowserRouter, Switch,  Route} from 'react-router-dom';
+import CreateAssignment from "./components/CreateAssignment";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
        <Switch>
         <Route exact path='/' component={Assignment} />
         <Route path='/gradebook' component={Gradebook} />
+        <Route path='/createAssignment' component={CreateAssignment} />
        </Switch>
       </BrowserRouter>
     </div>

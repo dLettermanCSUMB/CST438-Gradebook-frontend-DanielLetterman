@@ -75,6 +75,10 @@ class Assignment extends React.Component {
       const assignmentSelected = this.state.assignments[this.state.selected];
       return (
           <div align="left" >
+              <Button component={Link} to={{pathname:'/createAssignment'}}
+                      variant="outlined" color="primary"  style={{margin: 10}}>
+                  Create Assignment
+              </Button>
             <h4>Assignment(s) ready to grade: </h4>
               <div style={{ height: 450, width: '100%', align:"left"   }}>
                 <DataGrid rows={this.state.assignments} columns={columns} />
