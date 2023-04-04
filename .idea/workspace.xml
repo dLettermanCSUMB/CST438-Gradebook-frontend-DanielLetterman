@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c2d39f13-57ab-4dd6-ad65-7ced7953b156" name="Changes" comment="added CreateAssignment.js (handles instructors adding assignments to their courses)&#10;modified Assignments.js (button added to top of page directing to createAssignment page)&#10;modified App.js (added route to CreateAssignment.js)" />
+    <list default="true" id="c2d39f13-57ab-4dd6-ad65-7ced7953b156" name="Changes" comment="added CreateAssignment.js (handles instructors adding assignments to their courses)&#10;modified Assignments.js (button added to top of page directing to createAssignment page)&#10;modified App.js (added route to CreateAssignment.js)">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +22,9 @@
   <component name="Git.Merge.Settings">
     <option name="BRANCH" value="main" />
   </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="origin/dev" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -27,6 +32,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -59,6 +65,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "dev",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -88,19 +95,6 @@
       <option name="USE_OPTIONS" value="false" />
       <option name="OPTIONS" value="" />
       <method v="2" />
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="CST438-Gradebook-frontend-DanielLetterman" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="CST438-Gradebook-frontend-DanielLetterman" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
     <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
       <module name="CST438-Gradebook-frontend-DanielLetterman" />
@@ -175,6 +169,9 @@
       <workItem from="1679353367810" duration="31000" />
       <workItem from="1679353420712" duration="32085000" />
       <workItem from="1679437514209" duration="178000" />
+      <workItem from="1679961847409" duration="2636000" />
+      <workItem from="1680391340585" duration="60000" />
+      <workItem from="1680391405521" duration="33000" />
     </task>
     <task id="LOCAL-00001" summary="first commit&#10;&#10;# Conflicts:&#10;#&#9;README.md">
       <created>1679353737586</created>
@@ -204,7 +201,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679439544938</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="added CreateAssignment.js (handles instructors adding assignments to their courses)&#10;modified Assignments.js (button added to top of page directing to createAssignment page)&#10;modified App.js (added route to CreateAssignment.js)">
+      <created>1679440241837</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1679440241837</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

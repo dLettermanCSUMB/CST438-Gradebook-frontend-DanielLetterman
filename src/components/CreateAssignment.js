@@ -132,14 +132,14 @@ class CreateAssignment extends React.Component {
                    <Grid item align="left" paddingX={2}>
                        <h3><input id="assignmentName" value={assignmentName} onChange={this.handleNameChange}></input></h3>
                        <h3><DatePicker id="dueDate" selected={dueDate} onChange={this.handleDateChange} dateFormat={"yyyy-MM-dd"} minDate={minDate}/></h3>
-                       <h3> <select id="courseSelect " onChange={ this.handleCourseSelect }>
+                       <h3> <select id="courseSelect" onChange={ this.handleCourseSelect }>
                                <option value={0}>Please select</option>
                                { courses.map( (course, index) => {return <option key={index} value={course.courseId}>{course.title}</option>} ) }
                            </select></h3>
                    </Grid>
                </Grid>
                 <Button component={Link} to={{pathname:'/'}}
-                        id="Submit" variant="outlined" color="primary" style={{margin: 10}} onClick={this.handleSubmit} >
+                        id="submit" variant="outlined" color="primary" style={{margin: 10}} onClick={this.handleSubmit} >
                     Submit
                 </Button>
                 <ToastContainer autoClose={1500} />
